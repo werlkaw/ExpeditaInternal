@@ -1,0 +1,58 @@
+<form [formGroup]="requestForm" (ngSubmit)="orderTrackers()">
+    <mat-form-field class="long-input">
+        <input matInput required type="text" formControlName="name" placeholder="Nombre de empresa o cliente">
+    </mat-form-field>
+    <br>
+    <mat-form-field class="long-input">
+        <input matInput required type="email" formControlName="email" placeholder="Correo Electrónico">
+    </mat-form-field>
+    <br>
+    <mat-form-field class="long-input">
+        <input matInput required type="text" formControlName="rfc" placeholder="RFC">
+    </mat-form-field>
+    <br>
+    <mat-form-field appearance="fill">
+        <mat-label>Uso de CFDI</mat-label>
+        <select matNativeControl required formControlName="cfdiUse">
+            <option *ngFor="let cfdiUse of cfdiOptions" value="{{cfdiUse.value}}">{{cfdiUse.description}}</option>
+        </select>
+    </mat-form-field>
+    <br>
+    <mat-form-field appearance="fill">
+        <mat-label>Cantidad de Rastreadores</mat-label>
+        <select matNativeControl required formControlName="tracker_quantity">
+            <option *ngFor="let quantity of tracker_quantity">{{quantity}}</option>
+        </select>
+    </mat-form-field>
+    <br><br>
+    <h2>Datos de tarjeta</h2>
+    <mat-form-field class="long-input">
+        <input matInput required type="text" formControlName="card_number" placeholder="Número de tarjeta">
+    </mat-form-field>
+    <h5>Fecha de vencimiento</h5>
+    <mat-form-field appearance="fill">
+        <mat-label>Mes</mat-label>
+        <select matNativeControl required formControlName="card_month">
+            <option *ngFor="let month of months">{{month}}</option>
+        </select>
+    </mat-form-field> /
+    <mat-form-field appearance="fill">
+        <mat-label>Año</mat-label>
+        <select matNativeControl required formControlName="card_year">
+            <option *ngFor="let year of years">{{year}}</option>
+        </select>
+    </mat-form-field>
+    <br>
+    <mat-form-field class="short-input">
+        <input matInput required type="text" formControlName="card_cvv" placeholder="CVV" maxlength="4">
+    </mat-form-field>
+    <div style="overflow-wrap: break-word; padding-bottom: 10px;">
+        <mat-checkbox formControlName="accept_terms"></mat-checkbox>Al seleccionar Ordenar, entiendo que me inscribo en un programa de suscripción 
+        a Expedita Rastreo SA de CV. Autorizo a Expedita Rastreo SA de CV, mediante firma electrónica,
+        a cargar mi método de pago para las suscripciones seleccionadas a menos que las cancele.
+        Para cancelar, contactanos en expeditalogistics@gmail.com. Si recibes un precio con descuento,
+        se te cobrará automáticamente el precio completo cuando finalice el período de descuento.
+    
+    </div>
+    <button disabled="{{!requestForm.controls.accept_terms.value}}" mat-raised-button color="primary" type="submit">Ordenar</button>
+</form>

@@ -1,0 +1,15 @@
+mat-form-field {
+    margin: 0px 5px 0px 5px;
+}
+
+.long-input {
+    width: 250px;
+}
+
+.short-input {
+    width: 75px;
+}
+
+mat-checkbox {
+    padding-right: 5px;
+}

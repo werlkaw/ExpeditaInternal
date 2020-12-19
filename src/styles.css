@@ -1,0 +1,16 @@
+/* You can add global styles to this file, and also import other style files */
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    background-color: #DCDCDC;
+}
+
+.expedita-card {
+    width: 700px;
+    margin: auto;
+}
+
+.expedita-card-content {
+    padding: 10px;
+}

@@ -1,0 +1,16 @@
+
+<mat-card class="expedita-card">
+    <mat-card-title>Registro de Cliente</mat-card-title>
+    <mat-card-content class="expedita-card-content">
+        <app-register-client-form [hidden]="!showRegistration" (requestStatus)="handleRequestUpdate($event)"></app-register-client-form>
+        <div [hidden]="!showLoading">
+            <mat-spinner style="margin:auto;"></mat-spinner>
+        </div>
+        <div [hidden]="!showFailure">
+            Hubo un problema. Por favor intente mas tarde.
+        </div>
+        <div [hidden]="!showSuccess">
+            Gracias por registrarte!
+        </div>
+    </mat-card-content>
+</mat-card>
