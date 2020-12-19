@@ -251,10 +251,12 @@ export const stripeWebhook = functions.https.onRequest(async (request, response)
         })).data;
 
         // Add Cfdi info to invoice
-        stripeService.invoices.addCfdiNumberToInvoice(
+        stripeService.invoices.addMetadataToInvoice(
             stripeEvent.data.object.id,
-            cfdiResponse.Folio,
-            cfdiResponse.Complement.TaxStamp.Uuid);
+            {
+                [Constants.StripeMetadata.CFDI_NUMBER]: cfdiResponse.Folio,
+                [Constants.StripeMetadata.CFDI_UUID]: cfdiResponse.Complement.TaxStamp.Uuid
+            });
         console.log(JSON.stringify(cfdiResponse));
 
         // Send
@@ -373,6 +375,13 @@ export const conektaWebhook = functions.https.onRequest(async (request, response
                 paymentDate: getZeroTimeDateInMexico(payment.executed_at)
             })).data;
             console.log("comp de pago: " + JSON.stringify(compDePagoResponse))
+
+            stripeService.invoices.addMetadataToInvoice(
+                associatedInvoice.id,
+                {
+                    [Constants.StripeMetadata.COMPLEMENTO_NUMBER]: compDePagoResponse.Folio,
+                    [Constants.StripeMetadata.COMPLEMENTO_UUID]: compDePagoResponse.Complement.TaxStamp.Uuid
+                });
             // Send
             await facturama.sendCfdiEmail(associatedInvoice.customer_email, compDePagoResponse.Id, "issued");
         } else {

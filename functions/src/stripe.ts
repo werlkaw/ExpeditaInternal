@@ -1,5 +1,4 @@
 import * as functions from 'firebase-functions';
-import * as Constants from './constants';
 import { StripeCard, StripeSubscription } from "./models";
 
 
@@ -28,13 +27,10 @@ export class StripeService {
     }
 
     public invoices = {
-        addCfdiNumberToInvoice: (invoiceId: string, cfdiNumber: string, cfdiUuid: string) => {
+        addMetadataToInvoice: (invoiceId: string, data: any) => {
             return this.stripeSdk.invoices.update(
                 invoiceId,
-                {metadata: {
-                    [Constants.StripeMetadata.CFDI_NUMBER]: cfdiNumber,
-                    [Constants.StripeMetadata.CFDI_UUID]: cfdiUuid
-                }}
+                {metadata: data}
             );
         },
         getOpenInvoices: async (customerId: string): Promise<any[]> => {

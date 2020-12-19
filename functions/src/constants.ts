@@ -4,8 +4,10 @@ export class ApiPathConstants {
 
 export class StripeMetadata {
     public static readonly CFDI_UUID = "cfdiUuid";
-    public static readonly CFDI_USE = "cfdiUse";
     public static readonly CFDI_NUMBER = "cfdiNumber";
+    public static readonly COMPLEMENTO_UUID = "complementoUuid";
+    public static readonly COMPLEMENTO_NUMBER = "complementoNumber";
+    public static readonly CFDI_USE = "cfdiUse";
     public static readonly SAT_CODE = "satCode";
     public static readonly UNIT_CODE = "unitCode";
     public static readonly INVOICE_PREVIOUS_MONTH = "invoicePreviousMonth";
