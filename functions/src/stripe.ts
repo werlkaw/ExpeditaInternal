@@ -55,6 +55,12 @@ export class StripeService {
     }
 
     public customers = {
+        addMetadata: (customerId: string, data: any) => {
+            return this.stripeSdk.customers.update(
+                customerId,
+                {metadata: data}
+            );
+        },
         addCustomer: (customer: any, cardData?: any) => {
             if (cardData) {
                 customer.invoice_settings = {

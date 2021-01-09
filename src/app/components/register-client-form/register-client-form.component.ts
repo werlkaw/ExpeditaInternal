@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, ValidatorFn } from '@angular/forms';
 import { AngularFireFunctions } from '@angular/fire/functions';
+import { CustomerData } from 'src/app/models/customer';
 
 export enum RequestStatus {
   PENDING, SUCCESS, FAILURE
@@ -26,6 +27,14 @@ export class RegisterClientFormComponent implements OnInit {
     value: "P01",
     description: "P01 - Por Definir"  
   }];
+
+  paymentOptions = [{
+    value: "card",
+    description: "Tarjeta de crédito o débito"
+  }, {
+    value: "spei",
+    description: "Transferencia electrónica"  
+  }];
   tracker_quantity = [];
 
   constructor(private formBuilder: FormBuilder, private firebaseFunctions: AngularFireFunctions) {
@@ -36,7 +45,8 @@ export class RegisterClientFormComponent implements OnInit {
       name: '',
       email: '',
       rfc: '',
-      cfdiUse: new FormControl('',[this.cfdiValidator()]),
+      cfdi_use: new FormControl('',[this.cfdiValidator()]),
+      payment_method: new FormControl('',[this.paymentMethodValidator()]),
       tracker_quantity: 1,
       card_number: '',
       card_month: 1,
@@ -44,6 +54,13 @@ export class RegisterClientFormComponent implements OnInit {
       card_cvv: '',
       accept_terms: false
     });
+  }
+
+  private paymentMethodValidator(): ValidatorFn {
+    return (control: AbstractControl): {[key: string]: any} | null => {
+      return this.paymentOptions.filter((entry) => {return entry.value == control.value}).length > 0 ?
+        null : {forbiddenPaymentMethod: {value: control.value}};
+    };
   }
 
   private cfdiValidator(): ValidatorFn {
@@ -61,23 +78,30 @@ export class RegisterClientFormComponent implements OnInit {
       return;
     }
     this.requestStatus.emit(RequestStatus.PENDING);
-    this.firebaseFunctions.httpsCallable('createCustomer')({
+
+    let customerData: CustomerData = {
       customer: {
         name: this.requestForm.controls.name.value,
         email: this.requestForm.controls.email.value,
         description: "Se solicitan " + this.requestForm.controls.tracker_quantity.value + " gps.",
-        rfc: this.requestForm.controls.rfc.value,
-        cfdiUse: this.requestForm.controls.cfdiUse.value
       },
       tracker_quantity: this.requestForm.controls.tracker_quantity.value,
-      card_details: {
+      livemode: true
+    };
+    if (this.requestForm.controls.card_number.value) {
+      customerData.card_details = {
         number: this.requestForm.controls.card_number.value,
         month: this.requestForm.controls.card_month.value,
         year: this.requestForm.controls.card_year.value,
         cvv: this.requestForm.controls.card_cvv.value
-      },
-      test: false
-    }).subscribe((response) => {
+      };
+    }
+
+    if (this.requestForm.controls.rfc.value) {
+      customerData.customer.rfc = this.requestForm.controls.rfc.value;
+      customerData.customer.cfdiUse = this.requestForm.controls.cfdi_use.value;
+    }
+    this.firebaseFunctions.httpsCallable('createCustomer')(customerData).subscribe((response) => {
       console.log(response);
       if (response.status == 200) {
         this.requestStatus.emit(RequestStatus.SUCCESS);

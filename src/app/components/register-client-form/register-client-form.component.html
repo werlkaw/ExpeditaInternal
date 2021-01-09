@@ -8,12 +8,12 @@
     </mat-form-field>
     <br>
     <mat-form-field class="long-input">
-        <input matInput required type="text" formControlName="rfc" placeholder="RFC">
+        <input matInput type="text" formControlName="rfc" placeholder="RFC">
     </mat-form-field>
     <br>
     <mat-form-field appearance="fill">
         <mat-label>Uso de CFDI</mat-label>
-        <select matNativeControl required formControlName="cfdiUse">
+        <select matNativeControl formControlName="cfdi_use">
             <option *ngFor="let cfdiUse of cfdiOptions" value="{{cfdiUse.value}}">{{cfdiUse.description}}</option>
         </select>
     </mat-form-field>
@@ -24,28 +24,37 @@
             <option *ngFor="let quantity of tracker_quantity">{{quantity}}</option>
         </select>
     </mat-form-field>
-    <br><br>
-    <h2>Datos de tarjeta</h2>
-    <mat-form-field class="long-input">
-        <input matInput required type="text" formControlName="card_number" placeholder="Número de tarjeta">
-    </mat-form-field>
-    <h5>Fecha de vencimiento</h5>
-    <mat-form-field appearance="fill">
-        <mat-label>Mes</mat-label>
-        <select matNativeControl required formControlName="card_month">
-            <option *ngFor="let month of months">{{month}}</option>
-        </select>
-    </mat-form-field> /
-    <mat-form-field appearance="fill">
-        <mat-label>Año</mat-label>
-        <select matNativeControl required formControlName="card_year">
-            <option *ngFor="let year of years">{{year}}</option>
-        </select>
-    </mat-form-field>
     <br>
-    <mat-form-field class="short-input">
-        <input matInput required type="text" formControlName="card_cvv" placeholder="CVV" maxlength="4">
+    <mat-form-field appearance="fill">
+        <mat-label>Método de pago</mat-label>
+        <select matNativeControl required formControlName="payment_method">
+            <option *ngFor="let method of paymentOptions" value="{{method.value}}">{{method.description}}</option>
+        </select>
     </mat-form-field>
+    <br><br>
+    <div *ngIf="this.requestForm.controls.payment_method.value == 'card'">
+        <h2>Datos de tarjeta</h2>
+        <mat-form-field class="long-input">
+            <input matInput type="text" formControlName="card_number" placeholder="Número de tarjeta">
+        </mat-form-field>
+        <h5>Fecha de vencimiento</h5>
+        <mat-form-field appearance="fill">
+            <mat-label>Mes</mat-label>
+            <select matNativeControl formControlName="card_month">
+                <option *ngFor="let month of months">{{month}}</option>
+            </select>
+        </mat-form-field> /
+        <mat-form-field appearance="fill">
+            <mat-label>Año</mat-label>
+            <select matNativeControl formControlName="card_year">
+                <option *ngFor="let year of years">{{year}}</option>
+            </select>
+        </mat-form-field>
+        <br>
+        <mat-form-field class="short-input">
+            <input matInput type="text" formControlName="card_cvv" placeholder="CVV" maxlength="4">
+        </mat-form-field>
+    </div>
     <div style="overflow-wrap: break-word; padding-bottom: 10px;">
         <mat-checkbox formControlName="accept_terms"></mat-checkbox>Al seleccionar Ordenar, entiendo que me inscribo en un programa de suscripción 
         a Expedita Rastreo SA de CV. Autorizo a Expedita Rastreo SA de CV, mediante firma electrónica,

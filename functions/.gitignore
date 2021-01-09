@@ -16,3 +16,6 @@ node_modules/
 
 # Except log files
 *.log
+
+# Ignore service account file
+serviceAccountKey.json

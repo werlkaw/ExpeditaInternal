@@ -7,7 +7,12 @@ import { Customer, FacturamaCfdiItem, FacturamaCustomerTaxInfo, FacturamaReceive
 import { StripeService } from './stripe';
 import { ConektaService } from './conekta';
 
-admin.initializeApp(functions.config().firebase);
+
+const serviceAccount = require('./../serviceAccountKey.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://expedita-corp.firebaseio.com"
+});
 
 import * as ConektaStripeMap from './firestore/conekta-stripe-map';
 
@@ -56,12 +61,20 @@ export const createCustomer = functions.https.onCall(async (data, context) => {
         if (card) {
             var stripeCustomer = await stripeService.customers.addCustomer(customerData, card);
         } else {
-            var conektaCustomer = (await conektaService.customers.addCustomer({
-                name: customerData.name,
-                email: customerData.email
-            })).toObject();
             var stripeCustomer = await stripeService.customers.addCustomer(customerData);
-            ConektaStripeMap.addEntry(conektaCustomer.id, stripeCustomer.id);
+            if (data.livemode) {
+                var conektaCustomer = (await conektaService.customers.addCustomer({
+                    name: customerData.name,
+                    email: customerData.email,
+                    payment_sources: [{
+                        type: "spei_recurrent"
+                    }]
+                })).toObject();
+                await stripeService.customers.addMetadata(stripeCustomer.id, {
+                    spei_reference: conektaCustomer.payment_sources.data[0].reference
+                });
+                ConektaStripeMap.addEntry(conektaCustomer.id, stripeCustomer.id);
+            }
         }
 
         // Turning off auto subscriptions for now.
@@ -174,8 +187,9 @@ export const stripeWebhook = functions.https.onRequest(async (request, response)
     let stripeEvent = request.body;
     console.log("Event: " + JSON.stringify(stripeEvent));
     if (stripeEvent.type != "invoice.payment_succeeded" && 
-           (stripeEvent.type != "invoice.finalized" || stripeEvent.data.object.collection_method != "send_invoice")) {
-        let message = "I don't support this operation yet: " + stripeEvent.type + " " + stripeEvent.data.object.collection_method;
+           (stripeEvent.type != "invoice.finalized" || stripeEvent.data.object.collection_method != "send_invoice" || stripeEvent.data.object.status != "open")) {
+        let message = "I don't support this operation yet: " + stripeEvent.type + " " + stripeEvent.data.object.collection_method + 
+            " " + stripeEvent.data.object.status;
         console.log(message); 
         response.end(message);
         return;
@@ -263,7 +277,10 @@ export const stripeWebhook = functions.https.onRequest(async (request, response)
         facturama.sendCfdiEmail(stripeCustomer.email, cfdiResponse.Id, "issued");
         response.end("i'm done.");
     } catch (error) {
-        sendErrorMail("stripeWebhook", stripeEvent);
+        sendErrorMail("stripeWebhook", {
+            error: JSON.stringify(error),
+            request: stripeEvent
+        });
         response.end("there was en error. Email sent!");
     }
 });
@@ -291,8 +308,8 @@ function getZeroTimeDateInMexico(eventTimestamp: number) {
 export const conektaWebhook = functions.https.onRequest(async (request, response) => {
 
     console.log(JSON.stringify(request.body));
-    if (request.body.livemode != true && request.body.type != "charge.paid") {
-        console.log("not in livemode or not charge.paid");
+    if (request.body.type != "charge.paid") {
+        console.log("not charge.paid");
         response.end("conekta operation: " + request.body.livemode + " " + request.body.type + " not supported");
         return;
     }
